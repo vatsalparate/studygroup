@@ -539,6 +539,7 @@
               '<div class="group-actions">' +
                 '<button class="btn btn-ghost btn-xs" onclick="joinGroup(' + g.id + ')">Join</button>' +
                 '<button class="btn btn-danger btn-xs" onclick="leaveGroup(' + g.id + ')">Leave</button>' +
+                '<button class="btn btn-danger btn-xs" onclick="deleteGroup(' + g.id + ')">Delete</button>' +
               '</div>' +
             '</div>';
           grid.appendChild(card);
@@ -557,6 +558,12 @@
     api('/leave-group',{method:'POST',body:{group_id:id}})
       .then(function(d){ toast(d.msg,'info'); loadGroups(); })
       .catch(function(e){ toast(e.message,'error'); });
+  }
+  function deleteGroup(id) {
+    if (!confirm('Are you sure you want to delete this group? This cannot be undone.')) return;
+    api('/delete-group/' + id, {method:'POST'})
+        .then(function(d){ toast(d.msg,'success'); loadGroups(); })
+        .catch(function(e){ toast(e.message,'error'); });
   }
 
   function joinRoom() {
@@ -655,7 +662,10 @@
           var icon=FILE_ICONS[ext]||'📎', cls=FILE_CLS[ext]||'txt';
           var date=n.uploaded_at?new Date(n.uploaded_at).toLocaleDateString():'';
           var el=document.createElement('div'); el.className='note-item';
-          el.innerHTML='<div class="note-icon '+cls+'">'+icon+'</div><span class="note-name">'+esc(n.filename)+'</span>'+(date?'<span class="note-date">'+date+'</span>':'')+'<a href="'+BASE+'/download/'+n.id+'" target="_blank" class="btn btn-ghost btn-xs" style="flex-shrink:0">Download</a>';
+          el.innerHTML='<div class="note-icon '+cls+'">'+icon+'</div>' +
+          '<span class="note-name">'+esc(n.filename)+'</span>' +
+          (date?'<span class="note-date">'+date+'</span>':'') +
+          '<a href="'+n.url+'" target="_blank" class="btn btn-ghost btn-xs" style="flex-shrink:0">Download</a>';
           list.appendChild(el);
         });
       })
